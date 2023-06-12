@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ecommerce'
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,12 @@ WSGI_APPLICATION = 'ecommerceBackend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DATABASES = {
+     'default': {
+         'ENGINE': 'djongo',
+         'NAME': 'ecommerce-mongo',
+     }
+ }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
