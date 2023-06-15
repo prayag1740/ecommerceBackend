@@ -19,10 +19,10 @@ class GetProducts(APIView):
         return Response(response, status=http_status.HTTP_200_OK)
 
 
-class CreateProduct(APIView):
+class BaseProduct(APIView):
 
     def post(self, request, *args, **kwargs):
-
+    
         request_data = request.data
         serializer = ProductSerializer(data= request_data)
         if not serializer.is_valid():
@@ -31,6 +31,56 @@ class CreateProduct(APIView):
 
         product = Products.objects.create(**request_data)
         serializer = ProductSerializer(product).data
-        response = serializer
+        
+        return Response(serializer, status=http_status.HTTP_200_OK)
 
-        return Response(response, status=http_status.HTTP_200_OK)
+    def get(self, request, id):
+    
+        try:
+            prod = Products.objects.get(id=id)
+        except Products.DoesNotExist:
+            resp = {"error" : "Product does not exist"}
+            return Response(resp, status=http_status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductSerializer(prod).data
+        return Response(serializer, status=http_status.HTTP_200_OK)
+
+    def put(self, request, id):
+        try:
+            prod = Products.objects.get(id=id)
+        except Products.DoesNotExist:
+            resp = {"error" : "Product does not exist"}
+            return Response(resp, status=http_status.HTTP_404_NOT_FOUND)
+
+        prod.__dict__.update(request.data)
+        prod.save()
+        serializer = ProductSerializer(prod).data
+
+        return Response(serializer, status=http_status.HTTP_200_OK)
+
+    def delete(self, request, id):
+
+        try:
+            prod = Products.objects.get(id=id)
+        except Products.DoesNotExist:
+            resp = {"error" : "Product does not exist"}
+            return Response(resp, status=http_status.HTTP_404_NOT_FOUND)
+
+        prod.delete()
+        resp = {"message" : "success"}
+        return Response(resp, status=http_status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+        
+
+
+
+
+        
+        
