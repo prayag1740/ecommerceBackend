@@ -28,5 +28,27 @@ class Products (models.Model):
         db_table = 'products'
 
 
+class Users (models.Model):
+
+    USER_ROLES = [
+        ("ADMIN", 'admin'),
+        ("USER", 'user')
+    ]
+
+    name = models.CharField(max_length=50, null=False, blank=False)
+    email = models.EmailField(null=False, blank=False, unique=True)
+    password = models.CharField(max_length=255, null=False, blank=False)
+    avatar = models.JSONField(default={})
+    role = models.CharField(max_length=255, null=False, blank=False, choices=USER_ROLES, default=USER_ROLES[1][0])
+    reset_password_token = models.CharField(max_length=255)
+    reset_password_expiry = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'users'
+
+
+
 
 

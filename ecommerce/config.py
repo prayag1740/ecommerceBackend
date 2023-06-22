@@ -6,4 +6,7 @@ class Config:
     class PRODUCT:
         DOES_NOT_EXIST = (1, "Product does not exist")
 
+    class USER:
+        DOES_NOT_EXIST = (1, "User does not exist")
+
         
