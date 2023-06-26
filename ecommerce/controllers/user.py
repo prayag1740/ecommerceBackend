@@ -1,4 +1,4 @@
-import jwt, os
+import  os, jwt
 from ecommerce.models import Users
 from ecommerce.config import Config
 from ecommerce.exception_handler import CustomException
@@ -26,7 +26,7 @@ class UserController:
             "exp" : os.environ.get('JWT_EXPIRY_SEC')
         }
         jwt_secret_token = os.environ.get('JWT_SECRET_KEY')
-        jwt_token = jwt.encode(body, jwt_secret_token, algorithm='HS256')
+        jwt_token = jwt.encode(payload=body, key=jwt_secret_token, algorithm='HS256')
         return jwt_token
 
 

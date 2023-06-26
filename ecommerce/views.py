@@ -1,9 +1,10 @@
-import requests
+import requests, os
 from ecommerce.models import Products, Users
 from ecommerce.serializers.product import ProductSerializer
 from ecommerce.serializers.user import UserSerializer
 from ecommerce.controllers.product import ProductController
 from ecommerce.controllers.user import UserController
+from ecommerce.db.redis import RedisController
 from rest_framework import status as http_status
 from rest_framework.views import APIView
 from ecommerce.exception_handler import CustomException
@@ -116,6 +117,9 @@ class User (APIView):
             
         serializer = UserSerializer(user).data
         serializer["token"] = jwt_token
+
+        jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
+        RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
         
         return Response(serializer, status=http_status.HTTP_200_OK)
 
