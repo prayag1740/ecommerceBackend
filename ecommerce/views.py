@@ -9,7 +9,7 @@ from rest_framework import status as http_status
 from rest_framework.views import APIView
 from ecommerce.exception_handler import CustomException
 from django.core.paginator import Paginator
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from ecommerce.config import Config
 from ecommerce.constants import PAGE_LIMIT
 from rest_framework.response import Response
@@ -122,6 +122,55 @@ class User (APIView):
         RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
         
         return Response(serializer, status=http_status.HTTP_200_OK)
+
+
+class LoginUser(APIView):
+
+    def post(self, request):
+
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        if not email or not password:
+            error = Config.USER.LOGIN_INFO_MISSING
+            response = {"status" : error[0], "message" : error[1]}
+            raise CustomException(http_status.HTTP_400_BAD_REQUEST, response)
+
+        #checking valid user ; email id check
+        try:
+            user = Users.objects.get(email=email)
+        except Users.DoesNotExist:
+            error = Config.USER.DOES_NOT_EXIST
+            response = {"status" : error[0], "message" : error[1]}
+            raise CustomException(http_status.HTTP_404_NOT_FOUND, response)
+
+
+        #password check
+
+        is_valid_user = check_password(password, user.password)
+        if not is_valid_user:
+            error = Config.USER.DOES_NOT_EXIST
+            response = {"status" : error[0], "message" : error[1]}
+            raise CustomException(http_status.HTTP_404_NOT_FOUND, response)
+
+        user_token =  RedisController.get_value(str(user.id))
+
+        if not user_token:
+            jwt_token = UserController.create_jwt_token(user.id)
+            jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
+            RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
+
+
+        user_serializer = UserSerializer(user).data
+        user_serializer["token"] = jwt_token
+
+        return Response(user_serializer, status=http_status.HTTP_200_OK)
+
+
+
+        
+
+        
 
 
 

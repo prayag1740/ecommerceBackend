@@ -8,5 +8,6 @@ class Config:
 
     class USER:
         DOES_NOT_EXIST = (1, "User does not exist")
+        LOGIN_INFO_MISSING = (2, "Please enter both email and password")
 
         

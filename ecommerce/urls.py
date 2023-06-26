@@ -7,4 +7,5 @@ urlpatterns = [
     path('product/<int:id>', views.BaseProduct.as_view()),
 
     path('user/', views.User.as_view()),
+    path('login/', views.LoginUser.as_view()),
 ]
