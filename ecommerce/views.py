@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from ecommerce.exception_handler import CustomException
 from django.core.paginator import Paginator
 from django.contrib.auth.hashers import make_password, check_password
+from ecommerce.middleware.authentication import UserAuthentication, AdminAuthentication
 from ecommerce.config import Config
 from ecommerce.constants import PAGE_LIMIT
 from rest_framework.response import Response
@@ -91,6 +92,28 @@ class BaseProduct(APIView):
 
 class User (APIView):
 
+
+    def get(self, request, id):
+        try:
+            user = Users.objects.get(id=id)
+        except Users.DoesNotExist:
+            error_code = Config.USER.DOES_NOT_EXIST
+            resp = {"status" : error_code[0], "message" : error_code[1] }
+            raise CustomException(http_status.HTTP_404_NOT_FOUND, resp)
+            
+        serializer = UserSerializer(user).data
+
+        user_token =  RedisController.get_value(str(user.id))
+        if not user_token:
+            user_token = UserController.create_jwt_token(user.id)
+            jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
+            RedisController.set_key(str(user.id), user_token, jwt_expiry_time)
+
+        serializer["token"] = user_token
+        
+        return Response(serializer, status=http_status.HTTP_200_OK)
+
+
     def post(self, request):
 
         request_data = request.data
@@ -124,7 +147,7 @@ class User (APIView):
         return Response(serializer, status=http_status.HTTP_200_OK)
 
 
-class LoginUser(APIView):
+class LoginUser(UserAuthentication, APIView):
 
     def post(self, request):
 
@@ -156,13 +179,12 @@ class LoginUser(APIView):
         user_token =  RedisController.get_value(str(user.id))
 
         if not user_token:
-            jwt_token = UserController.create_jwt_token(user.id)
+            user_token = UserController.create_jwt_token(user.id)
             jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
-            RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
-
+            RedisController.set_key(str(user.id), user_token, jwt_expiry_time)
 
         user_serializer = UserSerializer(user).data
-        user_serializer["token"] = jwt_token
+        user_serializer["token"] = user_token
 
         return Response(user_serializer, status=http_status.HTTP_200_OK)
 

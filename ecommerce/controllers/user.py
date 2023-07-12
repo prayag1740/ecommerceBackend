@@ -23,7 +23,6 @@ class UserController:
             "name" : user.name,
             "email" : user.email,
             "role" : user.role,
-            "exp" : os.environ.get('JWT_EXPIRY_SEC')
         }
         jwt_secret_token = os.environ.get('JWT_SECRET_KEY')
         jwt_token = jwt.encode(payload=body, key=jwt_secret_token, algorithm='HS256')

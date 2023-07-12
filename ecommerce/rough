@@ -2,6 +2,21 @@ TODOS
 1 --> check gte on price in products model  
 2 --> check for products category string to int conversion in create and update product
 3 --> create user duplicate email check
-4 --> check user authentication (https://medium.com/python-pandemonium/json-web-token-based-authentication-in-django-b6dcfa42a332)
-5 --> integrate redis 
+7 --> check for redis expiry time issue
+8 --> create middleware for product API
+9 --> fix token expiry issue and checking if token expired
+
+
+
+
+
+
+
+
+______________________________________________________________________________________________________________
+
+DONE
+
+5 --> integrate redis (DONE)
 6 --> create env file (DONE)
+4 --> check user authentication (https://medium.com/python-pandemonium/json-web-token-based-authentication-in-django-b6dcfa42a332)
