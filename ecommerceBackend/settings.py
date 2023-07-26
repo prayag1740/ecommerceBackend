@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ecommerce',
-    'corsheaders'
+    'corsheaders',
     'rest_framework'
 ]
 
@@ -91,8 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerceBackend.wsgi.application'
 
-CORS_ALLOWED_ORIGINS = ["*"]
-
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -103,6 +101,8 @@ DATABASES = {
          'NAME': 'ecommerce-mongo',
      }
  }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 
  #caches
