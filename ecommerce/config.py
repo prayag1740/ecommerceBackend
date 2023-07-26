@@ -12,5 +12,6 @@ class Config:
         DOES_NOT_EXIST = (1, "User does not exist")
         LOGIN_INFO_MISSING = (2, "Please enter both email and password")
         INVALID_ROLE = (3, "Invalid Role . Cannot Login into system")
+        USER_ID_MISSING = (4, "User ID is missing")
 
         

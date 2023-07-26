@@ -19,4 +19,14 @@ DONE
 
 5 --> integrate redis (DONE)
 6 --> create env file (DONE)
-4 --> check user authentication (https://medium.com/python-pandemonium/json-web-token-based-authentication-in-django-b6dcfa42a332)
+4 --> check user authentication (https://medium.com/python-pandemonium/json-web-token-based-authentication-in-django-b6dcfa42a332) (DONE)
+
+
+
+_______________________________________________________________________________________________________________
+
+Flow info
+1) User authentication
+--> currently token remains active only for 5 days in redis
+--> Two ways to logout ; token expire after 5 days or logout API
+--> Once a user gets logged out ; needs to login again to get token

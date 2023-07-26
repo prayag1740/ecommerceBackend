@@ -11,5 +11,8 @@ class RedisController:
 
     @staticmethod
     def get_value(key):
-
         return cache.get(key)
+
+    @staticmethod
+    def delete_key(key):
+        cache.delete(key)

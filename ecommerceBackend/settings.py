@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ecommerce',
+    'corsheaders'
     'rest_framework'
 ]
 
@@ -67,6 +68,7 @@ PASSWORD_HASHERS = [
   'django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher',
   'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
   'django.contrib.auth.hashers.CryptPasswordHasher',
+  'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'ecommerceBackend.urls'
@@ -88,6 +90,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ecommerceBackend.wsgi.application'
+
+CORS_ALLOWED_ORIGINS = ["*"]
 
 
 # Database

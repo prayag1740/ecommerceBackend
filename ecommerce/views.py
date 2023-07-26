@@ -35,7 +35,7 @@ class GetProducts(APIView):
         return Response(response, status=http_status.HTTP_200_OK)
 
 
-class BaseProduct(APIView):
+class BaseProduct(AdminAuthentication, APIView):
 
     def post(self, request, *args, **kwargs):
     
@@ -90,7 +90,38 @@ class BaseProduct(APIView):
         return Response(resp, status=http_status.HTTP_200_OK)
 
 
-class User (APIView):
+class User(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        request_data = request.data
+        serializer = UserSerializer(data=request_data)
+
+        try:
+            if not serializer.is_valid():
+                response = {"status" : 1, "error" : serializer.errors}
+                raise CustomException(http_status.HTTP_400_BAD_REQUEST, response)
+        except Exception as e:
+            err_code = Config.GENERIC.FAILURE
+            resp = {"status" : err_code[0], "message" : err_code[1]}
+            return Response(resp, status=http_status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        name = request_data["name"]
+        email = request_data["email"]
+        pass_encrypted = make_password(request_data["password"])
+        avatar = request_data.get("avatar", {})
+        role = request_data.get("role", Users.USER_ROLES[1][0])
+
+        user = Users.objects.create(name=name, email=email, password=pass_encrypted, avatar=avatar, role=role)
+        jwt_token = UserController.create_jwt_token(user.id)
+            
+        serializer = UserSerializer(user).data
+        serializer["token"] = jwt_token
+
+        jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
+        RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
+        
+        return Response(serializer, status=http_status.HTTP_200_OK)
 
 
     def get(self, request, id):
@@ -114,40 +145,8 @@ class User (APIView):
         return Response(serializer, status=http_status.HTTP_200_OK)
 
 
-    def post(self, request):
 
-        request_data = request.data
-        serializer = UserSerializer(data=request_data)
-
-        try:
-            if not serializer.is_valid():
-                response = {"status" : 1, "error" : serializer.errors}
-                raise CustomException(http_status.HTTP_400_BAD_REQUEST, response)
-        except Exception as e:
-            print(e.__traceback__)
-            err_code = Config.GENERIC.FAILURE
-            resp = {"status" : err_code[0], "message" : err_code[1]}
-            return Response(resp, status=http_status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        name = request_data["name"]
-        email = request_data["email"]
-        pass_encrypted = make_password(request_data["password"])
-        avatar = request_data.get("avatar", {})
-        role = request_data.get("role", Users.USER_ROLES[1][0])
-
-        user = Users.objects.create(name=name, email=email, password=pass_encrypted, avatar=avatar, role=role)
-        jwt_token = UserController.create_jwt_token(user.id)
-            
-        serializer = UserSerializer(user).data
-        serializer["token"] = jwt_token
-
-        jwt_expiry_time = os.environ.get('JWT_EXPIRY_SEC')
-        RedisController.set_key(str(user.id), jwt_token, jwt_expiry_time)
-        
-        return Response(serializer, status=http_status.HTTP_200_OK)
-
-
-class LoginUser(UserAuthentication, APIView):
+class LoginUser(APIView):
 
     def post(self, request):
 
@@ -187,6 +186,35 @@ class LoginUser(UserAuthentication, APIView):
         user_serializer["token"] = user_token
 
         return Response(user_serializer, status=http_status.HTTP_200_OK)
+
+
+class LogoutUser(APIView):
+
+    def post(self, request):
+
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            error = Config.USER.USER_ID_MISSING
+            response = {"status" : error[0], "message" : error[1]}
+            raise CustomException(http_status.HTTP_400_BAD_REQUEST, response)
+
+        try:
+            user = Users.objects.get(id=user_id)
+        except User.DoesNotExist:
+            error = Config.USER.DOES_NOT_EXIST
+            response = {"status" : error[0], "message" : error[1]}
+            raise CustomException(http_status.HTTP_400_BAD_REQUEST, response)
+
+        RedisController.delete_key(str(user.id))
+
+        response = {
+            "status" : 0,
+            "message" : "Logged Out !!"
+        }
+
+        return Response(response, status=http_status.HTTP_200_OK)
+
 
 
 
