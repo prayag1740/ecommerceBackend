@@ -23,6 +23,21 @@ DONE
 
 
 
+
+mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=ecommerce-mongo
+      - MONGO_INITDB_USERNAME=root
+      - MONGO_INITDB_PASSWORD=root
+    ports:
+      - 27017:27017
+
+
 _______________________________________________________________________________________________________________
 
 Flow info
@@ -30,3 +45,49 @@ Flow info
 --> currently token remains active only for 5 days in redis
 --> Two ways to logout ; token expire after 5 days or logout API
 --> Once a user gets logged out ; needs to login again to get token
+
+
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce
+  labels:
+    app: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+    spec:
+      containers:
+        - name: ecommerce
+          image: prayagbhatia8/ecommercebackend-web:latest
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
+
+
+
+'CLIENT' : {
+            'host' : 'mongo',
+            'port' : 27017
+         }
+
+
+Kubernetes Progress So Far
+
+1) Setting up pods & services for app and mongodb (DONE)
+2) Setting up pv and pvc for mongodb (DONE)
+3) using minikube tunnel to expose app IP to outside (DONE)
+4) communication check test between app and mongoDB (DONE)
+5) migrations inside app pod (DONE)
+6) data verify inside mongo pod (DONE)
+7) redis pod and service setup (TODO)

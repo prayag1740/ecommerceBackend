@@ -1,4 +1,4 @@
-import jwt, os, traceback
+import jwt, os, traceback, re
 from django.utils import timezone
 from datetime import datetime
 from rest_framework import exceptions
@@ -60,6 +60,13 @@ class AdminAuthentication(AuthMiddleWare):
     
     def initial(self, request, *args, **kwargs):
         print("initial method called --> admin authentication")
+        
+        req_url = request.get_full_path()
+
+        #bypass for get product
+        regex_pattern = r"^/ecommerce/product/(\d+)$"
+        if request.method == "GET" and re.match(regex_pattern, req_url):
+            return
 
         self.validate_token(request)
 

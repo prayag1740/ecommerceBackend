@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce
+  labels:
+    app: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+    spec:
+      containers:
+        - name: ecommerce
+          image: prayagbhatia8/ecommerce-backend:1.0.4
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
+          env:
+            - name: REDIS_HOST
+              value: redis-service
